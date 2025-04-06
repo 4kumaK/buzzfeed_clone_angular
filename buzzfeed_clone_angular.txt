@@ -1,0 +1,133 @@
+
+==============================
+🔧 PROJETO ANGULAR – CLONE BUZZFEED
+==============================
+
+# Etapa 1: Criar o Projeto Angular
+
+Comando:
+ng new buzzfeed-clone --routing --style=scss
+cd buzzfeed-clone
+ng serve
+
+# Etapa 2: Criar os Módulos e Componentes
+
+Módulos:
+ng generate module features/home --route home --module app.module
+ng generate module features/quiz --route quiz --module app.module
+ng generate module features/result --route result --module app.module
+
+Componentes:
+ng generate component shared/components/navbar
+ng generate component features/home/components/quiz-card
+ng generate component features/quiz/components/question
+
+# Estrutura de Rotas (app-routing.module.ts)
+
+const routes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
+  { path: 'quiz/:id', loadChildren: () => import('./features/quiz/quiz.module').then(m => m.QuizModule) },
+  { path: 'result/:id', loadChildren: () => import('./features/result/result.module').then(m => m.ResultModule) }
+];
+
+# Serviço Quiz (quiz.service.ts)
+
+@Injectable({ providedIn: 'root' })
+export class QuizService {
+  private quizzes = [
+    {
+      id: 1,
+      titulo: 'Qual personagem de série você é?',
+      descricao: 'Descubra qual personagem combina com a sua personalidade!',
+      imagem: 'https://placehold.co/300x200?text=Quiz+1',
+      perguntas: [
+        {
+          texto: 'Qual cor você prefere?',
+          opcoes: [
+            { texto: 'Azul', valor: 'a' },
+            { texto: 'Vermelho', valor: 'b' }
+          ]
+        },
+        {
+          texto: 'Qual o seu passatempo ideal?',
+          opcoes: [
+            { texto: 'Ler um livro', valor: 'a' },
+            { texto: 'Festa com os amigos', valor: 'b' }
+          ]
+        }
+      ],
+      resultados: {
+        a: {
+          titulo: 'Você é o Sheldon!',
+          descricao: 'Gênio, porém socialmente peculiar.',
+          imagem: 'https://placehold.co/300x200?text=Sheldon'
+        },
+        b: {
+          titulo: 'Você é o Barney!',
+          descricao: 'Confiante e sempre pronto pra festa.',
+          imagem: 'https://placehold.co/300x200?text=Barney'
+        }
+      }
+    }
+  ];
+
+  getQuizzes() {
+    return this.quizzes;
+  }
+
+  getQuizById(id: number) {
+    return this.quizzes.find(q => q.id === id);
+  }
+}
+
+# Componente Home
+
+home.component.ts:
+ngOnInit() {
+  this.quizzes = this.quizService.getQuizzes();
+}
+
+home.component.html:
+<app-quiz-card *ngFor="let quiz of quizzes" [quiz]="quiz"></app-quiz-card>
+
+# Componente QuizCard
+
+quiz-card.component.ts:
+@Input() quiz: any;
+abrirQuiz() {
+  this.router.navigate(['/quiz', this.quiz.id]);
+}
+
+quiz-card.component.html:
+<div (click)="abrirQuiz()">
+  <img [src]="quiz.imagem" />
+  <h2>{{ quiz.titulo }}</h2>
+  <p>{{ quiz.descricao }}</p>
+</div>
+
+# Página do Quiz
+
+quiz.component.ts:
+- Recebe ID da rota
+- Mostra pergunta atual
+- Armazena respostas
+- Direciona para página de resultado
+
+# Página Resultado
+
+result.component.ts:
+- Recebe resultado via history.state
+- Busca dados do quiz
+- Mostra imagem, título e descrição
+
+result.component.html:
+<h1>Resultado</h1>
+<img [src]="resultadoFinal.imagem" />
+<h2>{{ resultadoFinal.titulo }}</h2>
+<p>{{ resultadoFinal.descricao }}</p>
+<button routerLink="/home">Fazer outro quiz</button>
+
+==============================
+✅ Projeto Angular funcional completo!
+==============================
